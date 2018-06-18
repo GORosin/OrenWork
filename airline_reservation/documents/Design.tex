@@ -1,0 +1,267 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LaTeX Template: Project Titlepage Modified (v 0.1) by rcx
+%
+% Original Source: http://www.howtotex.com
+% Date: February 2014
+%
+% This is a title page template which be used for articles & reports.
+%
+% This is the modified version of the original Latex template from
+% aforementioned website.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt]{report}
+\usepackage[a4paper]{geometry}
+\usepackage[myheadings]{fullpage}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{graphicx, wrapfig, subcaption, setspace, booktabs}
+\usepackage[T1]{fontenc}
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{fourier}
+\usepackage[protrusion=true, expansion=true]{microtype}
+\usepackage[english]{babel}
+\usepackage{sectsty}
+\usepackage{url, lipsum}
+\usepackage{multicol}
+
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+\onehalfspacing
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{0}
+
+%-------------------------------------------------------------------------------
+% HEADER & FOOTER
+%-------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\setlength\headheight{15pt}
+\fancyhead[L]{Team 5}
+\fancyhead[R]{AFRS Release 2}
+\fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
+%-------------------------------------------------------------------------------
+% TITLE PAGE
+%-------------------------------------------------------------------------------
+
+\begin{document}
+
+    \title{ \normalsize \textsc{SWEN 262}
+    \\ [2.0cm]
+    \HRule{0.5pt} \\
+    \LARGE \textbf{\uppercase{AFRS Release 2}}
+    \HRule{2pt} \\ [0.5cm]
+    \normalsize \today \vspace*{5\baselineskip}}
+
+    \date{}
+
+    \author{
+    Devin Matte drm8019@rit.edu \\
+    Amanda Ramos alr7924@rit.edu \\
+    Nicholas Montemorano nmm9422@rit.edu \\
+    Oren Rosin oxr3231@rit.edu
+    }
+
+    \maketitle
+    \tableofcontents
+    \newpage
+
+    %-------------------------------------------------------------------------------
+    % Section title formatting
+    \sectionfont{\scshape}
+    %-------------------------------------------------------------------------------
+
+    %-------------------------------------------------------------------------------
+    % BODY
+    %-------------------------------------------------------------------------------
+
+    \section*{Summary}\label{sec:summary}
+    \addcontentsline{toc}{section}{Summary}
+
+    \indent
+    The AFRS lets clients request reservations for flights.
+    The system responds with the possible flight plans, giving the user the power to choose one.
+    The system will ask the user for a command and said user can put a command in to make, delete or save a reservation for a passenger name.
+    The system keeps track of all reservations and flight data.
+    While in the terminal, the user can also input a code for an airport to view all information of the airport such as weather, delay times, flights and location.
+    A user can also get date for each flight stored in the system.
+    \newline
+    \indent
+    As of the most recent release, the user can no also undo a command recently performed, they can utilize a GUI interface, use data either from the local system or the FAA, as well as being able to have multiple concurrent clients.
+    The system now allows for users across of Treetop Airways to enjoy a more simplistic and useful interface as they manage the reservations throughout the system.
+    \newpage
+
+    %-------------------------------------------------------------------------------
+    % Release 2 Design Updates
+    %-------------------------------------------------------------------------------
+    \section*{Release 2 Design Updates}\label{sec:release2DesignUpdates}
+    \addcontentsline{toc}{section}{Release 2 Design Updates}
+
+    \indent
+    Overall the system coming from release 1 was in a good state.
+    The features and requirements from Release 1 were all implemented and functional to the standard.
+    Now when it came to Release 2, there was a need for a break up between client and server interactions.
+    This being that there now needs to be the ability for multiple concurrent clients all performing commands on the system.
+    Because of this, there was a need to break the system out into a client/server/common layout.
+    \newline
+    \indent
+    The main way to describe this breakout is that the client, cannot directly use any classes from the server, and the server vice versa.
+    However there are parts of the system that both need to access, that should be called the common, which are common classes shared by both systems.
+    \newline
+    \indent
+    This design required a bit of refactoring and an idea of how we could implement the communication between the clients and the server.
+    The discussion landed on using a web route based web service as the server.
+    This would allow the client to make simple http calls using a RESTful API to a constantly running server.
+
+    \begin{center}
+        \makebox[\textwidth]{\includegraphics[width=\linewidth]{images/r2-refactor.png}}
+    \end{center}
+
+    \indent
+    With this new design in mind, we then had to take into account our current subsystems and how they would fit into this new release, especially with the need to use a series of new design patterns from iterator, proxy and state patterns.
+    State pattern seemed like an easy implementation with the use of FFA or Flat files being a state, and the use of the CMD interface vs the GUI being another.
+    Proxy seemed like another easier implementation given the fact that the API is not called directly by the AFRS client, but instead is called through command pattern style classes, that then, by proxy, call the server.
+    Iterator was a bit harder of a decision to make as to where it should be implemented.
+
+    %-------------------------------------------------------------------------------
+    % Domain Model
+    %-------------------------------------------------------------------------------
+    \newpage
+    \section*{Domain Model}\label{sec:domainModel}
+    \addcontentsline{toc}{section}{Domain Model}
+
+    \paragraph{Release 1}
+
+    \indent
+    Release 1 Design was a little underdeveloped.
+    There was a functional system, however it was not very well thought out in the overall design.
+    There was a lot of work to be done on how the system communicated as a whole.
+    In Release 1 the focus was on getting a system that worked, and worked in a logical way instead of on how to design a system that was easy to continue development on after the fact.
+    Because of this the design made sense, but was not very thought out.
+
+    \begin{center}
+        \makebox[\textwidth]{\includegraphics[width=\linewidth]{images/r1domainmodel.png}}
+    \end{center}
+
+    \paragraph{Release 2}
+
+    \indent
+    Release 2 we took the client/server/common design approach and found a decent amount of success doing so.
+    The design when split into client and server made a lot of sense as to not only how communication works, but also how the system as a whole should be laid out.
+    By splitting communication we also heavily decoupled the system.
+    The client relies on the server, but the server has no reliance whatsoever on the client, and the client has a lot less information as it only knows what the user and the server give it.
+    Before the client was responsible for all interactions with the datahandler, and the user.
+    This creates a good layer of abstraction as well as decoupling.
+
+    \begin{center}
+        \makebox[\textwidth]{\includegraphics[width=\linewidth]{images/r2domainmodel.png}}
+    \end{center}
+
+    %-------------------------------------------------------------------------------
+    % System Architecture
+    %-------------------------------------------------------------------------------
+    \newpage
+    \section*{System Architecture}\label{sec:systemArchitecture}
+    \addcontentsline{toc}{section}{System Architecture}
+
+    \paragraph{Release 1}
+
+    \indent
+    At the end of Release 1, we had a large, complex system that was heavily coupled to the AFRS and Datahandler classes.
+    This was made abundantly clear by the fact that when the refactor to the new design was made, the AFRS class was importing a little over half of the classes that had been built in the system.
+
+    \begin{center}
+        \makebox[\textwidth]{\includegraphics[width=\linewidth]{images/r1class.png}}
+    \end{center}
+
+    \newpage
+
+    \paragraph{Release 2}
+
+    \indent
+    As part of the refactor the design was coupled away from the AFRS class and began the split into the 3 client/server/common systems.
+    This design choice was made in order to decouple the system and allow for multiple concurrent clients with ease.
+    There can be as many clients as needed, as long as the server is running as well.
+    The Server is the most complex of the three major subsystems.
+    A nice benefit of creating this subsystem is decoupling Data Handler and File Handler from some classes that required it in release 1.
+
+    \begin{center}
+        \makebox[\textwidth]{\includegraphics[width=\linewidth]{images/r2classdiagram.png}}
+    \end{center}
+
+
+    %-------------------------------------------------------------------------------
+    % Subsystems
+    %-------------------------------------------------------------------------------
+    \newpage
+    \section*{Subsystems}\label{sec:subsystems}
+    \input{Subsystems}
+
+    %-------------------------------------------------------------------------------
+    % Status of the Implementation
+    %-------------------------------------------------------------------------------
+    \section*{Status of the Implementation}\label{sec:statusOfTheImplementation}
+    \addcontentsline{toc}{section}{Status of the Implementation}
+
+    \indent
+    Overall the implementation is about minimizing places for user error.
+    Out system decided against doing single string requests and instead went for a series of prompts to the user to create a request that cannot be made incomplete.
+    Partial requests are eliminated.
+    There is no need for semicolons (;).
+    With these things in mind most of the logic can exist on the backend instead of up front on the user interface.
+
+
+    \subsection*{User Interface Implementation}\label{subsec:userInterfaceImplementation}
+    \begin{itemize}
+        \item Text interface provides users a sequence of preset options. The reasons we implemented it this way are:
+        \begin{itemize}
+            \item This eliminates the need for the user to memorize commands.
+            \item Request process is sped up.
+            \item This reduces the possibility for input error (spelling, format, accidental termination).
+            \item Less testing is needed.
+        \end{itemize}
+        \item GUI interface is available to alleviate the fallbacks of using a terminal based interface.
+        \begin{itemize}
+            \item User input is handled by more mouse clicks than keyboard input
+            \item Errors are reduced by prompts being provided with clearer displays
+        \end{itemize}
+    \end{itemize}
+
+    \subsection*{CSV Implementation}\label{subsec:csvImplementation}
+    \begin{itemize}
+        \item A small subsystem was created to handle data read/writes.
+        This system stores data in hash tables as an alternative to database:
+        \begin{itemize}
+            \item A FileHandler class reads from CSVs and writes to other CSVs.
+            \item A DataHandler class holds methods to manipulate data from FileHandler (i.e Flights, Reservations)
+        \end{itemize}
+    \end{itemize}
+
+    \subsection*{Client/Server/Common}\label{subsec:client/server/common}
+    \begin{itemize}
+        \item After the release of Release 1, the system was split into client, server and common systems.
+        This design change meaning that no classes inside client were used by server, and vice versa, with the only classes being shared being from common.
+        \begin{itemize}
+            \item This decouples client and server.
+        \end{itemize}
+    \end{itemize}
+
+    \subsection*{RESTful Web Service}\label{subsec:restfulWebService}
+    \begin{itemize}
+        \item Our choice for handling multiple concurrent user support was implementing Spring RESTful Web Service via Gradle.
+        \begin{itemize}
+            \item This simplified creating routes heavily.
+            Every command has a small route implementation to return a parsable JSON representation.
+            \item We decided this outweighed the difficulty of integrating Gradle into our project.
+        \end{itemize}
+    \end{itemize}
+
+    %-------------------------------------------------------------------------------
+    % Appendix
+    %-------------------------------------------------------------------------------
+    \newpage
+    \section*{Appendix}\label{sec:appendix}
+    \input{Appendix}
+
+\end{document}
